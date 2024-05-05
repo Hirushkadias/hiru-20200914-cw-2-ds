@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 def run():
-    # Title and description
+    # App Title and description
     st.header("Individual Coursework | Hirushka Dias")
     st.write("This interactive dashboard explores sales data from a global retail superstore.")
 
