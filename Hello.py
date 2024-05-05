@@ -5,12 +5,6 @@ import plotly.graph_objects as go
 from streamlit.logger import get_logger
 
 df = pd.read_csv('./datasets/Processed_GlobalSuperstoreLite.csv')
-# if all(df['Order Date'].str.contains('-')):  # Check for hyphens in all dates
-#     datetime_obj = datetime.datetime.strptime(df['Order Date'], '%Y-%m-%d')
-#     df['Order Date'] = datetime_obj.strftime('%d/%m/%Y')
-categories = df['Category'].to_numpy()
-sub_category = df['Sub-Category'].to_numpy()
-sales = df['Sales'].to_numpy()
 
 LOGGER = get_logger(__name__)
 st.set_page_config(
@@ -19,12 +13,14 @@ st.set_page_config(
 )
 
 def run():
-    st.write("# Hello World!!!")
+    st.write("# Individual Coursework | Hirushka Dias")
 
+    ### Table 1 ###
     st.write("## Processed Dataset")
     # Shows the dataset as a table, but a smaller version of the st.table()
     df
 
+    ### Graph 1 ###
     st.write("## No. of product sold per category and sub category")
     # Data is sorted by category and sub category
     df_grouped = df.groupby(['Category', 'Sub-Category'])['Sales'].sum().unstack()
@@ -47,35 +43,30 @@ def run():
     # Display interactive chart
     st.plotly_chart(fig)
 
-    # st.write("## Chart 2")
-    # # Year selection dropdown
-    # selected_year = st.selectbox("Select Year", df['Order Date'].dt.year.unique())
+    ### Graph 2 ###
+    st.write("## Product sales per month for selected year")
+    # Extract the month from the 'Order Date' column
+    df['Month'] = pd.to_datetime(df['Order Date']).dt.month_name()
 
-    # # Filter data for selected year
-    # df_filtered = df[df['Order Date'].dt.year == selected_year]
+    def plot_sales_by_product_month(df, year):
+        st.write(f'### Sales per Product by Month (Year: {year})')
+        # Filter data for the selected year
+        df_filtered = df[pd.to_datetime(df['Order Date']).dt.year == year]
 
-    # # Prepare data for bar chart (assuming 'products sold' is a count or sum)
-    # df_grouped = df_filtered.groupby([df_filtered['Order Date'].dt.month_name(), 'Category'])['Sales'].sum().unstack()
-    # month_names = df_grouped.index.to_list()
-    # categories = df_grouped.columns.to_list()
+        # Create a pivot table to group sales by month and product
+        pivot_table = pd.pivot_table(df_filtered, values='Sales', index='Month', columns='Product Name', aggfunc=sum)
 
-    # # Create stacked bar chart with Plotly
-    # data = []
-    # for i, category in enumerate(categories):
-    #     data.append(go.Bar(name=category, x=month_names, y=df_grouped.iloc[:, i]))
-    # fig = go.Figure(data=data)
+        # Create a Streamlit bar chart
+        st.bar_chart(pivot_table)
 
-    # # Update layout with titles and legend
-    # fig.update_layout(
-    #     title=f'Products Sold per Month (Year: {selected_year})',
-    #     xaxis_title='Month',
-    #     yaxis_title='Products Sold',
-    #     barmode='stack'  # Stack bars for categories within each month
-    # )
+    # Get all unique years from the data
+    years = pd.to_datetime(df['Order Date']).dt.year.unique()
 
-    # # Display interactive chart in Streamlit
-    # st.plotly_chart(fig)
+    # Year selection dropdown
+    selected_year = st.selectbox("Select Year to View Sales", years)
 
+    # Bar chart for the selected year
+    plot_sales_by_product_month(df.copy(), selected_year)
 
 if __name__ == "__main__":
     run()
