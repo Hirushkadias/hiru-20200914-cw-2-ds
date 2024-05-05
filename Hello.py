@@ -73,12 +73,24 @@ def run():
     # Plot sales for selected year
     plot_sales_by_product_month(selected_year)
 
-    # Finding the top 5 products
-    top_products = df.groupby(['Product Name', 'Category', 'Sub-Category'])['Sales'].sum().sort_values(ascending=False).head(5)
+
+    def plot_top_product_sales_table(year):
+        # Filter data by the selected year
+        df_filtered = df[pd.to_datetime(df['Order Date']).dt.year == year]
+
+        # Finding the top 5 products
+        top_products = df_filtered.groupby(['Product Name', 'Category', 'Sub-Category'])['Sales'].sum().sort_values(ascending=False).head(5)
+
+        # Index is reset, so the other column headers are shown in the table
+        top_products = top_products.reset_index()
+        st.table(top_products)
+
 
     # Display top 5 products
     st.subheader("Top 5 Selling Products")
-    st.table(top_products)
+
+    # Year is selected from the prevoius graph
+    plot_top_product_sales_table(selected_year)
 
 if __name__ == "__main__":
     run()
