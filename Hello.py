@@ -40,7 +40,7 @@ def run():
         barmode='stack'  # Stack bars for subcategories within each category
     )
 
-    # Display interactive chart in Streamlit
+    # Display interactive chart
     st.plotly_chart(fig)
 
 if __name__ == "__main__":
